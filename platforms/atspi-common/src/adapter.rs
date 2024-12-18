@@ -378,8 +378,7 @@ impl Adapter {
     pub fn new(
         app_context: &Arc<RwLock<AppContext>>,
         callback: impl 'static + AdapterCallback + Send + Sync,
-        fill: impl FnOnce(&mut TreeUpdate),
-        is_window_focused: bool,
+        tree: Tree,
         root_window_bounds: WindowBounds,
         action_handler: impl 'static + ActionHandler + Send,
     ) -> Self {
@@ -388,8 +387,7 @@ impl Adapter {
             id,
             app_context,
             callback,
-            fill,
-            is_window_focused,
+            tree,
             root_window_bounds,
             action_handler,
         )
@@ -399,8 +397,7 @@ impl Adapter {
         id: usize,
         app_context: &Arc<RwLock<AppContext>>,
         callback: impl 'static + AdapterCallback + Send + Sync,
-        fill: impl FnOnce(&mut TreeUpdate),
-        is_window_focused: bool,
+        tree: Tree,
         root_window_bounds: WindowBounds,
         action_handler: impl 'static + ActionHandler + Send,
     ) -> Self {
@@ -408,8 +405,7 @@ impl Adapter {
             id,
             app_context,
             callback,
-            fill,
-            is_window_focused,
+            tree,
             root_window_bounds,
             Arc::new(ActionHandlerWrapper::new(action_handler)),
         )
@@ -421,12 +417,10 @@ impl Adapter {
         id: usize,
         app_context: &Arc<RwLock<AppContext>>,
         callback: impl 'static + AdapterCallback + Send + Sync,
-        fill: impl FnOnce(&mut TreeUpdate),
-        is_window_focused: bool,
+        tree: Tree,
         root_window_bounds: WindowBounds,
         action_handler: Arc<dyn ActionHandlerNoMut + Send + Sync>,
     ) -> Self {
-        let tree = Tree::new(is_window_focused, fill);
         let focus_id = tree.state().focus().map(|node| node.id());
         let context = Context::new(app_context, tree, action_handler, root_window_bounds);
         context.write_app_context().push_adapter(id, &context);
